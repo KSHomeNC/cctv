@@ -8,13 +8,14 @@
  This example acts as a Security System based on Motion Detection, which would start to record a 
  30 seconds long MP4 video everytime motion is detected. (Alarm function could be initiated as well, but on default disabled)
  */
-#include "WDT.h"
+//#include "WDT.h"
 #include "AmebaFatFS.h"
 #include "setDateNTime.h"
 #include "cloudService.h"
 #include "KHomeTask.h"
 #include "commandHandler.h"
 #include "kshomeMotionDetection.h"
+#include "kshomeWdTask.h"
 //#include "kshomeConfig.h"
 //#include "cctvApp.h"
 
@@ -36,10 +37,11 @@
 
 ws_TCB wsTaskDec[]={
   //taskId,     taskHandler,    tick,         lifetime, isRunnable, isStarted
-  //  {0,     osdTask,          1000/TIME_TICK,   0,            0,         0},  // per Sec
-  //  {1,     mdTask,           500/TIME_TICK,   0,            0,         0},  //Per 500mSec  
-    {0,     commandTask,      1000/TIME_TICK, 0,            0,         0}, // per Sec
-  //  {2,     clonsolNetHandler,      1000/TIME_TICK, 0,            0,         0}, // per Sec
+    {0,     osdTask,          1000/TIME_TICK,   0,            0,         0},  // per Sec
+    {1,     mdTask,           500/TIME_TICK,    0,            0,         0},  //Per 500mSec  
+    {2,     commandTask,      1000/TIME_TICK,   0,            0,         0}, // per Sec
+    {3,     clonsolNetHandler,1000/TIME_TICK,   0,            0,         0}, // per Sec
+    {4,     wdTask,           3000/TIME_TICK,   0,            0,         0}, // per Sec
 };
 #define MAX_TASK  (sizeof(wsTaskDec)/sizeof(ws_TCB))
 
@@ -66,6 +68,9 @@ MotionDetection MD;
 StreamIO videoStreamerMD(1, 1); // 1 Input RGB Video -> 1 Output MD
 StreamIO audioStreamer(1, 1);   // 1 Input Audio -> 1 Output AAC
 StreamIO avMixStreamer(2, 1);   // 2 Input Video + Audio -> 2 Output MP4 + RTSP
+
+
+kshomeWDApp wdApp(10);
 
 void getConf()
 {
@@ -205,7 +210,7 @@ void setup() {
     
     // GPIO Initialization
     pinMode(GREEN_LED, OUTPUT);
-#if 0
+
     // attempt to connect to Wifi network:
     while (status != WL_CONNECTED) {
         digitalWrite(GREEN_LED, HIGH);
@@ -224,11 +229,16 @@ void setup() {
    Serial.println(datenTime.getDateNTimeStr());
    closeNetInit();
    registerTasks(wsTaskDec,MAX_TASK); 
- #endif
+ 
    /*start SD card file system */
    fs.begin();
 
-   //cctvInit();    
+   cctvInit();    
+   // example to crete wd task for each services
+   //int32_t id =  wdApp.initWdApp(10, "test wd");
+   //Serial.print( " Wd App Id *********************************************************************************************************");
+   //Serial.println(id);
+   //wdApp.startWdApp(id);
 }
 
 void commandTask()
@@ -246,6 +256,10 @@ void osdTask (void)
   updateOSD();
 }
 
+void wdTask()
+{
+  wdApp.kshomeWdLooper() ;
+}
 void loop() {
   startTask();    
   while (1)

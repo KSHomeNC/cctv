@@ -9,6 +9,7 @@
 void mdTask(void );
 void osdTask (void);
 void commandTask(void);
+void wdTask(void);
 
 
 #endif // __kshomeMD_H__

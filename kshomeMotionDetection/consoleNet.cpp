@@ -1,6 +1,5 @@
 #include <WiFiUdp.h>
 #include <arduino.h>
-#include "WDT.h"
 #include "consoleNet.h"
 #include "commandHandler.h"
 char packetBuffer[255]; //buffer to hold incoming packet
@@ -8,13 +7,9 @@ char  ReplyBuffer[] = "acknowledged";       // a string to send back
 int localPort =1234;
 WiFiUDP Udp;
 
-#define AON_WDT_Enable                      (0)
-#if AON_WDT_Enable == 0
-    #define RUN_CALLBACK_IF_WATCHDOG_BARKS  (0)
-#endif
-WDT wd(AON_WDT_Enable);
 
-void deviceReboot();
+
+//void deviceReboot();
 
 void closeNetInit()
 {
@@ -38,7 +33,7 @@ void clonsolNetHandler(void)
           packetBuffer[len] = 0;
           if(String(packetBuffer) == "RSET")
           {
-            deviceReboot();
+            //deviceReboot();
           }
       }
       
@@ -47,9 +42,4 @@ void clonsolNetHandler(void)
   }
 }
 
-void deviceReboot()
-{
-  wd.init(2000);
-  Serial.println("Watch dog called");
-  wd.start();
-}
+
