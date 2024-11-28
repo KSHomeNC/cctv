@@ -2,7 +2,8 @@
 #define  __kshomeMD_H__
 
 // Pin Definition
-#define GREEN_LED LED_BUILTIN
+#define GREEN_LED LED_G
+#define BLUE_LED LED_B
 #define BUZZER_PIN 8
 
 

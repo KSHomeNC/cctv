@@ -175,7 +175,7 @@ void motionDetection(void )
           if(motionCount==3){  
             tone(BUZZER_PIN, 1000, 500);
             motionDetected = true;
-            digitalWrite(GREEN_LED, HIGH);
+            digitalWrite(GREEN_LED, LOW);
             timelapseSec = silenceTimeSec;
             motionCount=0;
           }
@@ -187,9 +187,12 @@ void motionDetection(void )
     }
     else{
          timelapseSec--;
+         static int ledVal = 0;
+         ledVal = !ledVal;
+         digitalWrite(BLUE_LED, !ledVal); // blue LED turn off when no motion detected 
          if ( timelapseSec == 0)
-         {
-            digitalWrite(GREEN_LED, LOW); // GREEN LED turn off when no motion detected 
+         {           
+            digitalWrite(BLUE_LED, LOW); // blue LED turn off when no motion detected 
             motionDetected = false;
          }
     }   
@@ -209,18 +212,18 @@ void setup() {
     Serial.begin(115200);
     
     // GPIO Initialization
-    pinMode(GREEN_LED, OUTPUT);
+    pinMode(BLUE_LED, OUTPUT);
 
     // attempt to connect to Wifi network:
     while (status != WL_CONNECTED) {
-        digitalWrite(GREEN_LED, HIGH);
+        digitalWrite(BLUE_LED, HIGH);
         Serial.print("Attempting to connect to WPA SSID: ");
         Serial.println(ssid);
         status = WiFi.begin(ssid, pass);
 
         // wait 2 seconds for connection:
         delay(1000);
-        digitalWrite(GREEN_LED, LOW);
+        digitalWrite(BLUE_LED, LOW);
         delay(1000);
     }
    /* Synch RTC with NTP server*/
